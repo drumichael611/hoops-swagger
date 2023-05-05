@@ -1,0 +1,1211 @@
+openapi: 3.0.0
+info:
+  title: "Hoops & Gears"
+  version: "20220328203831"
+servers:
+  - url: https://api.hgautotech.com
+    description: "Production server"
+  - url: https://api-test.hgautotech.com
+    description: "Test server"
+security:
+  - APIKey: []
+tags: 
+  - name: "Inventory"
+    description: "Inventory Levels"
+  - name: "Sales Orders"
+    description: "Sales Orders" 
+  - name: "Customers"
+    description: "Customers"
+  - name: "Item Properties"
+    description: "Item Properties"
+  - name: "Vendor Data Exchange"
+  - name: "Customer Data Exchange"
+  - name: "Client Info"
+paths:
+  /Inventory/ListByFacility/{Facilityid}:
+    get:
+      tags:
+        - "Inventory"
+      summary: "Master List of Items"
+      parameters:
+        - name: "Facilityid"
+          description: "Facility number inventory data should be retrieved for.  API Key must have access to this facility."
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "Perpage"
+          description: "Number of items to include in pagination (up to 500, defaults to 50)."
+          in: "query"
+          required: false
+          schema: 
+            type: "integer"
+            format: "int64"
+        - name: "Currentpage"
+          description: "Used to specify further pages (starts at 1)."
+          in: "query"
+          required: false
+          schema: 
+            type: "integer"
+            format: "int64"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  totalRecordCount:
+                    description: "The total number of records available to be returned for this request." 
+                    type: "integer"
+                    format: "int64"
+                  totalPageCount:
+                    description: "Based on paging settings, the total number of pages available to be returned."
+                    type: "integer"
+                    format: "int64"
+                  ItemList:
+                    $ref: "#/components/schemas/MasterItemList"
+                  HoopsMessages:
+                    $ref: "#/components/schemas/HoopsMessages"
+        404:
+          description: "Not found"
+
+  /Inventory/LookupByCustomer:
+    post:  
+      tags:
+        - "Inventory"
+      summary: "Customer Lookup"
+      requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                properties:
+                  perPage:
+                    description: "Number of items to include in pagination (up to 500, defaults to 50)."
+                    type: "integer"
+                    format: "int64"
+                  currentPage:
+                    description: "Used to specify further pages (starts at 1)."
+                    type: "integer"
+                    format: "int64"
+                  LookupByCustomerInput:
+                    $ref: "#/components/schemas/LookupByCustomerInput"
+                  
+
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  totalRecordCount:
+                    description: "The total number of records available to be returned for this request." 
+                    type: "integer"
+                    format: "int64"
+                  totalPageCount:
+                    description: "Based on paging settings, the total number of pages available to be returned."
+                    type: "integer"
+                    format: "int64"
+                  BrandList:
+                    $ref: "#/components/schemas/BrandList"
+                  ItemList:
+                    $ref: "#/components/schemas/MasterItemList"
+                  HoopsMessages:
+                    $ref: "#/components/schemas/HoopsMessages"
+        404:
+          description: "Not found"
+
+  /SalesOrder/Create:
+    post:
+      tags: 
+        - "Sales Orders"
+      summary: "Create"
+      requestBody:
+          required: false
+          content:
+            application/json:
+              schema:
+                properties:
+                  CreateSalesOrderData:
+                    $ref: "#/components/schemas/CreateSalesOrderData"
+
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  SalesOrderObject:
+                    $ref: "#/components/schemas/SalesOrderObject"
+                  HoopsMessages:
+                    $ref: "#/components/schemas/HoopsMessages"
+        404:
+          description: "Not found"
+
+  /SalesOrder/{SalesOrderDocNo}:
+    get:
+      tags:
+        - "Sales Orders"  
+      summary: "Read Sales Order Details"
+      parameters:
+        - name: "SalesOrderDocNo"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  SalesOrderObject:
+                    $ref: "#/components/schemas/SalesOrderObject"
+                  HoopsMessages:
+                    $ref: "#/components/schemas/HoopsMessages"
+        404:
+          description: "Not found"
+
+  /SalesOrder/cancel/{SalesOrderDocNo}:
+    get:
+      tags:
+        - "Sales Orders"  
+      summary: "Cancel a Sales Order"
+      parameters:
+        - name: "SalesOrderDocNo"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  HoopsMessages:
+                    $ref: "#/components/schemas/HoopsMessages"  
+
+        404:
+          description: "Not found"
+
+  /Customer/{AccountNumber}:
+    get:
+      tags:
+        - "Customers"
+      summary: "Customer Info"
+      parameters:
+        - name: "AccountNumber"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      
+      responses: 
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  CustomerObject:
+                    $ref: "#/components/schemas/CustomerObject"
+                  HoopsMessages:
+                    $ref: "#/components/schemas/HoopsMessages"
+        404:
+          description: "Not found"
+
+  /ItemProperties/brands:
+    get:
+      tags:
+        - "ItemProperties"
+      summary: "List all Item Brands"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  BrandList:
+                    $ref: '#/components/schemas/BrandList'
+                  HoopsMessages:
+                    $ref: '#/components/schemas/HoopsMessages'
+        404:
+          description: "Not found"
+
+  /ItemProperties/types:
+    get:
+      tags:
+        - "ItemProperties"
+      summary: "List all Item Types"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  TypeList:
+                    $ref: '#/components/schemas/TypeBrandList'
+                  HoopsMessages:
+                    $ref: '#/components/schemas/HoopsMessages'
+        404:
+          description: "Not found"
+
+  /ItemProperties/typebrands/{TypeId}:
+    get:
+      tags:
+        - "ItemProperties"
+      summary: "Types with all brand options"
+      parameters:
+        - name: "TypeId"
+          description: "Limit results to a single type.  Enter 0 to return all types."
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  TypeList:
+                    $ref: '#/components/schemas/TypeBrandList'
+                  HoopsMessages:
+                    $ref: '#/components/schemas/HoopsMessages'
+        404:
+          description: "Not found"
+
+  /ItemProperties/brandtypes/{BrandId}:
+    get:
+      tags:
+        - "ItemProperties"
+      summary: "Brands with all type options"
+      parameters:
+        - name: "BrandId"
+          description: "Limit results to a single BrandId.  Enter 0 to return all brands."
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  TypeList:
+                    $ref: '#/components/schemas/BrandTypeList'
+                  HoopsMessages:
+                    $ref: '#/components/schemas/HoopsMessages'
+        404:
+          description: "Not found"
+
+  /ItemProperties/brand/{BrandId}/models:
+    get:
+      tags:
+        - "ItemProperties"  
+      summary: "Get Models for a Brand"
+      parameters:
+        - name: "BrandId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+            format: "int64"
+      
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  BrandList:
+                    $ref: '#/components/schemas/BrandModelList'
+                  HoopsMessages:
+                    $ref: '#/components/schemas/HoopsMessages'
+        404:
+          description: "Not found"
+    
+  /ItemProperties/brands/models:
+    get:
+      tags:
+        - "ItemProperties"  
+      summary: "Get Models for all Brands"
+      
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  BrandList:
+                    $ref: '#/components/schemas/BrandModelList'
+                  HoopsMessages:
+                    $ref: '#/components/schemas/HoopsMessages'
+        404:
+          description: "Not found"
+
+  /ItemProperties/manufacturers:
+    get:
+      tags:
+        - "ItemProperties"
+      summary: "List all Manufacturers"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  BrandList:
+                    $ref: '#/components/schemas/ManufacturerList'
+                  HoopsMessages:
+                    $ref: '#/components/schemas/HoopsMessages'
+        404:
+          description: "Not found"
+
+  /DataExchange/Vendor/SendPrices:
+    post: 
+      tags: 
+        - "Vendor Data Exchange"
+      summary: "Send New Prices"
+      description: "Used by Vendors to send pricing information to their Tire Dealer customer."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                VendorPriceData:
+                  $ref: "#/components/schemas/VendorPriceData"
+      responses: 
+        200: 
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  successCount:
+                    description: "Count of rows received with valid data."
+                    type: integer
+                    format: int64
+                  errorCount:
+                    description: "Count of rows received with invalid data."
+                    type: integer
+                    format: int64
+                  HoopsMessages:
+                    $ref: '#/components/schemas/HoopsMessages'
+        404:
+          description: "Not found"
+
+  /ClientInfo/basic:
+    get:
+      tags: 
+        - "Client Info"
+      summary: "Get basic client information"
+      responses: 
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  ClientInfo:
+                    $ref: '#/components/schemas/BasicClientInfo'
+                  HoopsMessages:
+                    $ref: '#/components/schemas/HoopsMessages'
+        404:
+          description: "Not found"
+          
+  /ClientInfo/facility/list:
+    get:
+      tags: 
+        - "Client Info"
+      summary: "List of facilities"
+      responses: 
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                properties:
+                  FacilityList:
+                    $ref: '#/components/schemas/FacilityList'
+                  HoopsMessages:
+                    $ref: '#/components/schemas/HoopsMessages'
+        404:
+          description: "Not found"
+
+components:
+  securitySchemes:
+    APIKey:
+      type: apiKey
+      in: header
+      name: "x-api-key"
+
+  schemas:
+    # Return structure for list of items - Master list or lookup by customer
+    MasterItemList:
+      description: "Item List"
+      type: array
+      items:
+        type: object
+        properties:
+          ItemId:
+            description: Unique identifier for item.  NOT Item Number (SKU)
+            type: "integer"
+            format: "int64"
+  
+          ItemNumber:
+            description: Item Number
+            type: "string"
+
+          ItemMfgNumber:
+            description: Manufacturer's Item Number
+            type: "string"
+  
+          ItemDescription:
+            description: Description
+            type: "string"
+  
+          SizeMasterCode:
+            description: "Tire Size"
+            type: "string"
+  
+          SizeMasterRaw:
+            description: "Tire size - raw text version."
+            type: "string"
+  
+          ManufacturerId:
+            description: "Unique identifier for item manufacturer."
+            type: "integer"
+            format: "int64"
+  
+          ManufacturerName:
+            description: Manufacturer Name
+            type: "string"
+  
+          ItemBrandId:
+            description: "Unique identifier for item brand."
+            type: "integer"
+            format: "int64"
+  
+          ItemBrandName:
+            description: Brand Name
+            type: "string"
+  
+          ItemClassName:
+            description: Class Name
+            type: "string"
+  
+          ItemModelId:
+            description: "Unique identifier for item model."
+            type: "integer"
+            format: "int64"
+  
+          ItemModelName:
+            description: Item Model Name
+            type: "string"
+
+          SpeedRating:
+            description: "Tire Speed Rating"
+            type: "string"
+
+          LoadRating:
+            description: "Tire Load Rating"
+            type: "string"
+
+          UTQG:
+            description: "Uniform Tire Quality Grade (UTQG)" 
+            type: "string"
+
+          Weight:
+            description: "Weight in pounds"
+            type: "number"
+            format: "double"
+
+          SidewallPly:
+            description: "Sidewall ply rating, either in number form or letter. (2, 4, 6, 8, 10, B, C, D, E, etc...)"
+            type: "string"
+
+          WallTypeName:
+            description: "Description of the sidewall, ie: Black Wall, White Wall, Outlined White Letters, etc..."
+            type: "string"
+
+          Warranty: 
+            description: "Manufacturer mileage warranty"
+            type: "number"
+            format: "double"
+
+          TreadDepth:
+            description: "Tire tread depth in 32nds of an inch"
+            type: "number"
+            format: "double"
+
+          AvailableQty:
+            description: "Qty available for purchase from the given Facility."
+            type: "number"
+            format: "double"
+  
+          Price:
+            description: "Price applicable only to the given Customer/Ship-To.  Returns 0 from the MasterList endpoint.  For pricing info, use the LookupByCustomer endpoint."
+            type: "number"
+            format: "double"
+  
+          FET:
+            description: FET
+            type: "number"
+            format: "double"
+
+          HubQty:
+              description: "Quantity available from hub warehouses."
+              type: "number"
+              format: "double"
+
+          ImageURL:
+            description: "URL to image of tread pattern."
+            type: "string"
+            
+          InfoURL:
+            description: "URL to tire info web page."
+            type: "string"
+
+          IsSpecial:
+            description: "Item is on special (Hot Sheet Price)"
+            type: boolean
+
+          HubAvailability:
+            description: Hub Availability Details
+            type: array
+            items:
+              $ref: "#/components/schemas/HubAvailability"
+
+    # Return sales order structure
+    SalesOrderObject:
+      properties:
+        SalesOrderDocNo:
+          description: Sales Order
+          type: "integer"
+          format: "int64"
+        CustomerId:
+          description: Customer Id
+          type: "integer"
+          format: "int64"
+        CustomerAccountNumber:
+          description: Account Number
+          type: "string"
+        CustomerName:
+          description: Customer Name
+          type: "string"
+        BillingAddress1:
+          description: Billing Address1
+          type: "string"
+        BillingAddress2:
+          description: Billing Address2
+          type: "string"
+        BillingAddressCity:
+          description: Billing Address City
+          type: "string"
+        BillingAddressState:
+          description: Billing Address State
+          type: "string"
+        BillingAddressZip:
+          description: Billing Address Zip
+          type: "integer"
+          format: "int64"
+        ShippingAddress1:
+          description: Shipping Address1
+          type: "string"
+        ShippingAddress2:
+          description: Shipping Address2
+          type: "string"
+        ShippingAddressCity:
+          description: Shipping Address City
+          type: "string"
+        ShippingAddressState:
+          description: Shipping Address State
+          type: "string"
+        ShippingAddressZip:
+          description: Shipping Address Zip
+          type: "integer"
+          format: "int64"
+        PONumber:
+          description: PONumber
+          type: "string"
+        FacilityNName:
+          description: Facility
+          type: "string"
+        RequiredDate:
+          description: Required Date
+          type: "string"
+          format: "date"
+        TotalQty:
+          description: Total Qty
+          type: "number"
+          format: "double"
+        Weight:
+          description: Weight
+          type: "number"
+          format: "double"
+        TotalPrice:
+          description: Total Price
+          type: "number"
+          format: "double"
+        TotalTax:
+          description: Total Tax
+          type: "number"
+          format: "double"
+        GrandTotal:
+          description: Grand Total
+          type: "number"
+          format: "double"
+        Status:
+          description: Status
+          type: "string"
+        Lines:
+          type: array
+          items:
+            type: object
+            properties:
+              ItemNumber:
+                description: Item Number
+                type: "string"
+              ItemDescription:
+                description: Description
+                type: "string"
+              Qty:
+                description: Qty
+                type: "number"
+                format: "double"
+              TotalPrice:
+                description: Total Price
+                type: "number"
+                format: "double"
+              TotalTax:
+                description: Total Tax
+                type: "number"
+                format: "double"
+              Weight:
+                description: Weight
+                type: "number"
+                format: "double"
+
+    # Sales order creation structure
+    CreateSalesOrderData:
+      description: "Create Sales Order Data"
+      required: 
+        - CartIdentifier
+        - CustomerAccountNumber
+        - CustomerShippingAddressId
+        - CustomerBillingAddressId
+        - FacilityId
+        - DeliveryMethod
+      properties:
+        CartIdentifier:
+          description: "Unique cart identifier to aid in preventing duplicate orders."
+          type: "string"
+
+        CustomerAccountNumber:
+          description: Customer Account Number
+          type: "integer"
+          format: "int64"
+
+        CustomerShippingAddressId:
+          description: "Ship-To Address ID options can be retrieved with the Customer Info endpoint."
+          type: "integer"
+          format: "int64"
+
+        CustomerBillingAddressId:
+          description: "Bill-To Address ID options can be retrieved with the Customer Info endpoint."
+          type: "integer"
+          format: "int64"
+
+        PONumber:
+          description: "Customer Purchase Order Number - Use the Customer Info endpoint to determine if this field is required."
+          type: "string"
+
+        DeliveryMethod:
+          description: "Delivery method for this order."
+          type: "string"
+          enum:
+            - Delivery
+            - Pickup
+
+        FacilityId:
+          description: Facility Id
+          type: "integer"
+          format: "int64"
+
+        Notes:
+          description: Order Notes
+          type: "string"
+
+        UserName:
+          description: Name of user submitting request
+          type: "string"
+
+        Lines:
+          type: array
+          items:
+            type: object
+            required: 
+              - ItemNumber
+              - Qty
+            properties:
+              ItemNumber:
+                description: Item Number
+                type: "string"
+                example: "AS4569289023"
+              Qty:
+                description: Qty
+                type: "number"
+                format: "double"
+              ItemId:
+                description: Item Id
+                type: "integer"
+                format: "int64"
+
+    # Hoops Messages - Common to all output
+    HoopsMessages:
+      description: "Messages"
+      type: array
+      items: 
+        type: object
+        properties:
+          MessageType:
+            description: "Message Type"
+            type: "string"
+          Message:
+            description: "Message"
+            type: "string"
+
+    # Input for lookup by customer endpoint
+    LookupByCustomerInput:
+      required:
+        - FacilityId
+        - CustomerAccountNumber
+        - CustomerShipToId
+      properties:
+        FacilityId:
+          description: Facility to retrieve pricing information from
+          type: "integer"
+          format: "int64"
+        CustomerAccountNumber:
+          type: "string"
+        CustomerShipToId:
+          description: "Ship-To Address ID options can be retrieved with the Customer Info endpoint."
+          type: "integer"
+          format: "int64"
+        ItemNumberList:
+          description: List of valid Item Numbers.  If none provided, all available items will be returned.
+          type: array
+          items:
+            properties:
+              ItemNumber: 
+                type: "string"
+        UserName:
+          description: Name of user submitting request
+          type: "string"
+
+        Filters:
+          type: "object"
+          description: "All filter fields are optional, and if left blank will be ignored."
+          properties:
+            SizeMasterRaw:
+              description: "Raw size code - include digits only, no formatting or special characters."
+              type: "string"
+            TypeId:
+              description: "Use the item types endpoint to retrieve type options."
+              type: "integer"
+              format: "int64"
+            BrandId:
+              description: "Legacy filter to search by a single Brand Id.  Ignored if any items are included in Brand array. "
+              type: "integer"
+              format: "int64"
+            Brand:
+              description: "Use the brands endpoint to retrieve brand options."
+              type: array
+              items:
+                type: "integer"
+                format: "int64"
+            AvailableOnly:
+              description: "Restrict results to items with inventory units available to be sold."
+              type: "boolean"
+            SpecialsOnly:
+              description: "Restrict results to items special pricing."
+              type: "boolean"
+              
+
+    CustomerObject:
+      properties:
+        CustomerId:
+          description: "Id"
+          type: "integer"
+          format: "int64"
+        AccountNumber:
+          description: "Account Number"
+          type: "string"
+        Name:
+          description: "Name"
+          type: "string"
+        PrimaryEmail:
+          description: "Primary Email"
+          type: "string"
+        PrimaryPhone:
+          description: "Primary Phone"
+          type: "string"
+        PrimaryFax:
+          description: "Primary Fax"
+          type: "string"
+        AccountRepId:
+          description: "Account Rep Id"
+          type: "integer"
+          format: "int64"
+        AccountRepName:
+          description: "Account Rep Name"
+          type: "string"
+        Terms:
+          description: "Terms"
+          type: "string"
+        AllowBackorder:
+          description: "Allow Backorder"
+          type: "boolean"
+        PORequired:
+          description: "Customer PO Required"
+          type: "boolean"
+        Addresses:
+          type: array
+          items:
+            type: object
+            properties:
+              AddressId:
+                description: "Customer Address ID - Address dentifier unique to this Customer."
+                type: "integer"
+                format: "int64"
+              AddressType:
+                description: "Address Type - Valid options: 'Bill', 'Ship', 'Both'"
+                type: "string"
+              Line1:
+                description: "Street Address Line 1"
+                type: "string"
+              Line2:
+                description: "Street Address Line 2"
+                type: "string"
+              City:
+                description: "City"
+                type: "string"
+              State:
+                description: "State"
+                type: "string"
+              Zip:
+                description: "Zip Code"
+                type: "integer"
+                format: "int64"
+
+    BrandList:
+      description: "Brand List"
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          BrandId:
+            description: "Unique Brand Identifier"
+            type: "integer"
+            format: "int64"
+          BrandName:
+            description: "Brand Name"
+            type: "string"
+          ImageURL:
+            description: "Brand Logo URL"
+            type: "string"
+          altImageURL:
+            description: "Brand Logo (alt) URL"
+            type: "string"
+
+    TypeList:
+      description: "Type List"
+      type: "array"
+      items:
+        $ref: "#/components/schemas/TypeListItem"
+
+    TypeListItem:
+      properties:
+        ItemTypeId:
+          description: Item Type Id
+          type: "integer"
+          format: "int64"
+        ItemTypeName:
+          description: Name
+          type: "string"
+        ShowAll:
+          description: ShowAll without requiring search by size
+          type: boolean
+        SubTypes:
+          description: Item Type List
+          type: array
+          items:
+            $ref: "#/components/schemas/TypeListItem"
+
+    TypeBrandList:
+      description: "List of Types and associated Brands"
+      type: array
+      items:
+        type: object
+        properties:
+          ItemTypeId:
+            description: Item Type Id
+            type: "integer"
+            format: "int64"
+          ItemTypeName:
+            description: Name
+            type: "string"
+          ItemTypeShowAll:
+            description: Item Type Show All
+            type: "integer"
+            format: "int32"
+
+          ItemBrand:
+            type: array
+            items:
+              type: "object"
+              properties:
+                ItemBrandId:
+                  description: Item Brand Id
+                  type: "integer"
+                  format: "int64"
+                ItemBrandName:
+                  description: Name
+                  type: "string"
+
+    BrandTypeList:
+      description: "List of Brands and associated Types"
+      type: array
+      items:
+        type: object
+        properties:
+          ItemBrandId:
+            description: Item Brand Id
+            type: "integer"
+            format: "int64"
+          ItembrandName:
+            description: Name
+            type: "string"
+
+          ItemType:
+            type: array
+            items:
+              type: "object"
+              properties:
+                ItemTypeId:
+                  description: Item Type Id
+                  type: "integer"
+                  format: "int64"
+                ItemTypeName:
+                  description: Name
+                  type: "string"
+                ItemTypeShowAll:
+                  description: Item Type Show All
+                  type: "integer"
+                  format: "int32"
+
+    BrandModelList:
+      description: "Brand and Model List"
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          BrandId:
+            description: "Unique Brand Identifier"
+            type: "integer"
+            format: "int64"
+          BrandName:
+            description: "Brand Name"
+            type: "string"
+          Models:
+            type: "array"
+            items: 
+              type: "object"
+              properties:
+                ModelId:
+                  description: "Unique Model Identifier"
+                  type: "integer"
+                  format: "int64"
+                ModelName:
+                  description: "Model Name"
+                  type: "string"
+          
+    ManufacturerList:
+      description: "Manufacturer List"
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          ManufacturerId:
+            description: "Unique Manufacturer Identifier"
+            type: "integer"
+            format: "int64"
+          ManufacturerName:
+            description: "Manufacturer Name"
+            type: "string"
+
+    VendorPriceData:
+      description: "Input Vendor Price Data"
+      type: object
+      properties:
+        FacilityId:
+          description: "Optional.  Customer's Faciliy ID these prices apply to.  If none supplied, prices are assumed to apply to all facilities."
+          type: integer
+          format: int64
+        DryRun:
+          description: "Dry run will not save any data, but will simply validate the data you provide and return the error status."
+          type: boolean
+          default: false
+        ContinueOnError:
+          description: "If set to true, valid data will be saved, even if accompanied by invalid data.  If set to false, if any invalid data is received, nothing will be saved."
+          type: boolean
+          default: false
+        Row:
+          type: array
+          items:
+            type: object
+            required:
+              - ItemNumber
+              - PriceAmount
+            properties:
+              ItemNumber:
+                description: Item Number
+                type: string
+              PriceAmount:
+                description: New Price
+                type: number
+                format: double
+
+    BasicClientInfo: 
+      properties:
+        ClientId:
+          description: Unique client Identifier
+          type: integer
+          format: int64
+        ClientName:
+          description: Name
+          type: "string"
+        ClientAdminEmail:
+          description: Admin Email
+          type: "string"
+        ClientTechEmail:
+          description: Tech Email
+          type: "string"
+        ClientBillingEmail:
+          description: Billing Email
+          type: "string"
+        ClientPhone1:
+          description: Phone 1
+          type: "string"
+        ClientPhone2:
+          description: Phone 2
+          type: "string"
+        ClientAddress1:
+          description: Address Line 1
+          type: "string"
+        ClientAddress2:
+          description: Address Line 2
+          type: "string"
+        ClientAddress3:
+          description: Address Line 3
+          type: "string"
+        ClientCity:
+          description: Client City
+          type: "string"
+        ClientState:
+          description: Client State
+          type: "string"
+        ClientZip:
+          description: Client Zip
+          type: "integer"
+          format: "int64"
+        ClientLogoPath:
+          description: Client Logo Path
+          type: "string"
+        eCommSettings:
+          $ref: "#/components/schemas/eCommSettings"
+
+    FacilityList:
+      description: "Facility List"
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          FacilityId:
+            description: "Unique Facility Identifier"
+            type: "integer"
+            format: "int64"
+          FacilityName:
+            description: "Facility Name"
+            type: "string"
+          FacilityAddressLine1:
+            description: "Address Line 1"
+            type: "string"
+          FacilityAddressLine2:
+            description: "Address Line 2"
+            type: "string"
+          FacilityAddressLine3:
+            description: "Address Line 3"
+            type: "string"
+          FacilityCity:
+            description: "City"
+            type: "string"
+          FacilityState:
+            description: "State"
+            type: "string"
+          FacilityZip:
+            description: "Zip/Postal Code"
+            type: "integer"
+            format: "int64"
+          FacilityPhone1:
+            description: "Phone 1"
+            type: "string"
+          FacilityPhone2:
+            description: "Phone 2"
+            type: "string"
+          FacilityLogoPath:
+            description: "Facility-Specific Logo Path.  If empty, use Client Logo path."
+            type: "string"
+
+    HubAvailability:
+      properties:
+        FacilityId:
+          description: Facility Id
+          type: "integer"
+          format: "int64"
+        FacilityName:
+          description: Facility Name
+          type: "string"
+        Qty:
+          description: Available Qty
+          type: "number"
+          format: "double"
+
+    eCommSettings:
+      properties:
+        ShowSpecials:
+          description: Show Specials
+          type: "boolean"
